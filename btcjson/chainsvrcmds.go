@@ -147,6 +147,22 @@ func NewGetBlockCmd(hash string, verbose, verboseTx *bool) *GetBlockCmd {
 	}
 }
 
+
+func NewGetBlockCmdM(hash string, verbose int) *GetBlockCmdM {
+	return &GetBlockCmdM{
+		Hash:    hash,
+		Verbose: &verbose,
+	}
+}
+
+// GetBlockCmdM defines the getblock JSON-RPC command.
+type GetBlockCmdM struct {
+	Hash    string
+	Verbose *int `jsonrpcdefault:"1"`
+}
+
+
+
 // GetBlockChainInfoCmd defines the getblockchaininfo JSON-RPC command.
 type GetBlockChainInfoCmd struct{}
 
@@ -795,7 +811,7 @@ func init() {
 	MustRegisterCmd("decodescript", (*DecodeScriptCmd)(nil), flags)
 	MustRegisterCmd("getaddednodeinfo", (*GetAddedNodeInfoCmd)(nil), flags)
 	MustRegisterCmd("getbestblockhash", (*GetBestBlockHashCmd)(nil), flags)
-	MustRegisterCmd("getblock", (*GetBlockCmd)(nil), flags)
+	MustRegisterCmd("getblock", (*GetBlockCmdM)(nil), flags)
 	MustRegisterCmd("getblockchaininfo", (*GetBlockChainInfoCmd)(nil), flags)
 	MustRegisterCmd("getblockcount", (*GetBlockCountCmd)(nil), flags)
 	MustRegisterCmd("getblockhash", (*GetBlockHashCmd)(nil), flags)

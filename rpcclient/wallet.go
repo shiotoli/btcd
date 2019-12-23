@@ -1391,6 +1391,24 @@ func (c *Client) ListAccounts() (map[string]btcutil.Amount, error) {
 // function on the returned instance.
 //
 // See ListAccountsMinConf for the blocking version and more details.
+func (c *Client) ListAddressGroupingsAsync() FutureListAddressGroupings {
+	cmd := btcjson.NewListAddressGroupingsCmd()
+	return c.sendCmd(cmd)
+}
+
+// ListAccounts returns a map of account names and their associated balances
+// using the default number of minimum confirmations.
+//
+// See ListAccountsMinConf to override the minimum number of confirmations.
+func (c *Client) ListAddressGroupings() ([][][]interface{}, error) {
+	return c.ListAddressGroupingsAsync().Receive()
+}
+
+// ListAccountsMinConfAsync returns an instance of a type that can be used to
+// get the result of the RPC at some future time by invoking the Receive
+// function on the returned instance.
+//
+// See ListAccountsMinConf for the blocking version and more details.
 func (c *Client) ListAccountsMinConfAsync(minConfirms int) FutureListAccountsResult {
 	cmd := btcjson.NewListAccountsCmd(&minConfirms)
 	return c.sendCmd(cmd)
@@ -1430,6 +1448,30 @@ func (r FutureGetBalanceResult) Receive() (btcutil.Amount, error) {
 	}
 
 	return amount, nil
+}
+
+// FutureGetBalanceParseResult is same as FutureGetBalanceResult except
+// that the result is expected to be a string which is then parsed into
+// a float64 value
+// This is required for compatibility with servers like blockchain.info
+type FutureListAddressGroupings chan *response
+
+// Receive waits for the response promised by the future and returns the
+// available balance from the server for the specified account.
+func (r FutureListAddressGroupings) Receive() ([][][]interface{}, error) {
+	res, err := receiveFuture(r)
+	if err != nil {
+		return nil, err
+	}
+	// reg := regexp.MustCompile(`(\d*(\.\d+)?),`)
+	// Unmarshal result as a string
+	// var balanceString string
+	var balanceString [][][]interface{}
+	err = json.Unmarshal(res, &balanceString)
+	if err != nil {
+		return nil, err
+	}
+	return balanceString, nil
 }
 
 // FutureGetBalanceParseResult is same as FutureGetBalanceResult except

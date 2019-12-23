@@ -178,6 +178,26 @@ func (c *Client) GetBlockVerboseTx(blockHash *chainhash.Hash) (*btcjson.GetBlock
 	return c.GetBlockVerboseTxAsync(blockHash).Receive()
 }
 
+
+
+func (c *Client) GetBlockVerboseTxM(blockHash *chainhash.Hash) (*btcjson.GetBlockVerboseResult, error) {
+	return c.GetBlockVerboseTxAsyncM(blockHash).Receive()
+}
+
+
+func (c *Client) GetBlockVerboseTxAsyncM(blockHash *chainhash.Hash) FutureGetBlockVerboseResult {
+	hash := ""
+	if blockHash != nil {
+		hash = blockHash.String()
+	}
+
+	cmd := btcjson.NewGetBlockCmdM(hash, 2)
+	return c.sendCmd(cmd)
+}
+
+
+
+
 // FutureGetBlockCountResult is a future promise to deliver the result of a
 // GetBlockCountAsync RPC invocation (or an applicable error).
 type FutureGetBlockCountResult chan *response
